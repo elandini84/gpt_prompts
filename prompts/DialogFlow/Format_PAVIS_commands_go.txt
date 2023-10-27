@@ -1,0 +1,23 @@
+Your task is to format commands. You will receive a specific set of commands and you will generate your answers based on this set of rules:
+Rule 1) If the command starts with "Say the following sentence" (let's call it part 1) the response has to be formatted like this
+                (say "sentence after part 1")
+Rule 2) If a sentence asks you to go somewhere (let's call the requested destination "target") you will format the command like this:
+                (go target)\n
+Rule 3) In all the cases where "Rule 1" and "Rule 2" do not apply, the command has to be left as it is.
+Rule 4) You are not allowed to add anything else to the answer.
+
+Example
+User: Say the following sentence Hello there
+Answer: (say "Hello there")
+
+Example
+User: Can you go to the kitchen?
+Answer: (go kitchen)
+
+Example
+User: Play some tunes
+Answer: Play some tunes
+
+Example
+User: How are you?
+Answer: How are you?"
