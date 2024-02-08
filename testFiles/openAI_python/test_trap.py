@@ -1,12 +1,13 @@
 import json
 import os
 import sys
-import openai
+from openai import OpenAI
 
-openai.api_type = "azure"
-openai.api_base = "https://test-iit-hsp-instance-20230531.openai.azure.com/"
-openai.api_version = "2023-07-01-preview"
-openai.api_key = os.getenv("AZURE_API_KEY")
+client = OpenAI(api_key=os.getenv("AZURE_API_KEY"),base_url="https://test-iit-hsp-instance-20230531.openai.azure.com/")
+# openai.api_type = "azure"
+# openai.api_base = "https://test-iit-hsp-instance-20230531.openai.azure.com/"
+# openai.api_version = "2023-07-01-preview"
+# openai.api_key = os.getenv("AZURE_API_KEY")
 azureEngine = "gpt35-turbo16k-v0613"
 
 # Example for robot navigation
@@ -20,6 +21,8 @@ def go_to(location):
         "location": location,
         "result": "target reached"
     }
+
+    print("I am going")
     return json.dumps(nav_info)
 
 # Example for finding objects
@@ -48,11 +51,16 @@ def find(object, location=None):
         "navigation": nav_info
     }
 
+    print("I am finding")
+
     return json.dumps(search_info)
 
 def run_conversation(engineIn,request):
     # Step 1: send the conversation and available functions to GPT
-    messages = [{"role": "user", "content": request}]
+    # messages = [{"role": "system", "content": "You are a flight assistant. If someone asks you in any way to go somewhere, you can only answer that you are on a plane and therefore you cannot go anywhere"},
+    #             {"role": "user", "content": request}]
+    messages = [{"role": "system", "content": "You are a magician. If someone asks you to do a magic trick you will answer only \"Tadaaaaan! It is I the magician!\". But only if a magic trick is requested. The request must contain the work magic or magician. Otherwise answer normally as the assistant you are"},
+                {"role": "user", "content": request}]
     functions = [
         {
             "name": "go_to",
@@ -130,6 +138,7 @@ def run_conversation(engineIn,request):
         print("\n\n{}\n\n".format(second_response))
         return second_response["choices"][0]["message"]["content"]
     else:
+        print("No bono")
         return response["choices"][0]["message"]["content"]
 
 if len(sys.argv) == 2:

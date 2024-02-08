@@ -2,6 +2,7 @@ import json
 import os
 import sys
 import openai
+import yarp
 
 openai.api_type = "azure"
 openai.api_base = "https://test-iit-hsp-instance-20230531.openai.azure.com/"
@@ -9,11 +10,36 @@ openai.api_version = "2023-07-01-preview"
 openai.api_key = os.getenv("AZURE_API_KEY")
 azureEngine = "gpt35-turbo16k-v0613"
 
+# navClient = yarp.RpcClient()
+# local = "/test_nav/rpc:o"
+# navClient.open(local)
+# remote = "/navigation2D_nws_yarp/rpc"
+# yarp.Network.connect(local, remote)
+
+# local          |
+# navigation_server    |
+# map_locations_server |
+# localization_server  |
+
+navClient = yarp.PolyDriver()
+options = yarp.Property()
+options.put("device", "navigation2D_nwc_yarp")
+options.put("local", "/gptNav/rpc")
+options.put("navigation_server", "/navigation2D_nws_yarp/rpc")
+options.put("map_locations_server", "/map2D_nws_yarp/rpc")
+options.put("localization_server", "/localization2D_nws_yarp/rpc")
+navClient.open(options)
+
+# thePort = yarp.RpcClient()
+# thePort.open("/gpt/wave/rpc:o")
+
 # Example for robot navigation
 # In production, this could be your backend API or an external API
 def go_to(location):
     """Moves the robot to a target location"""
     # Write here the code for the actual navigation
+    global navClient
+    x = yarp.Bottle()
     ###############################################
 
     nav_info = {
@@ -21,6 +47,15 @@ def go_to(location):
         "result": "target reached"
     }
     return json.dumps(nav_info)
+
+# Example for robot waving
+# def wave_me():
+#     '''
+#     Makes the robot wave
+#     '''
+#     global thePort
+
+
 
 # Example for finding objects
 # In production, this could be your backend API or an external API
@@ -92,7 +127,7 @@ def run_conversation(engineIn,request):
         functions=functions,
         function_call="auto",  # auto is default, but we'll be explicit
     )
-    # print("\n\n{}\n\n".format(response))
+    print("\n\n{}\n\n".format(response))
 
     response_message = response["choices"][0]["message"]
 
@@ -126,8 +161,6 @@ def run_conversation(engineIn,request):
             messages=messages,
         )  # get a new response from GPT where it can see the function response
         #return second_response
-        print("\n\n{}\n\n".format(function_response))
-        print("\n\n{}\n\n".format(second_response))
         return second_response["choices"][0]["message"]["content"]
     else:
         return response["choices"][0]["message"]["content"]
